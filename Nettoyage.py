@@ -3,15 +3,6 @@ import pyarrow as py
 import pyarrow.parquet as pq
 from datetime import datetime
 
-def harmoniser_colonnes(df, colonne_equivalences):
-    df = df.rename(columns=colonne_equivalences)
-    return df
- 
-def convertir_timestamp_en_date(df, colonne_timestamp):
-    df['date'] = pd.to_datetime(df[colonne_timestamp], unit='s').dt.date
-    df['time'] = pd.to_datetime(df[colonne_timestamp], unit='s').dt.time 
-    return df
-
 def trier_parquet():
     important_colonnes = ['apply_time_rl','gfs_2m_dewpoint','gfs_total_clouds_cover_low', 'gfs_wind_speed','gfs_u_wind','gfs_v_wind','fact_latitude','fact_longitude']
     weather = pd.read_parquet('Ressources/weather.parquet',columns=important_colonnes)
