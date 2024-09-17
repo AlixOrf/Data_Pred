@@ -1,16 +1,36 @@
 import pandas as pd 
 import pyarrow as py
 import pyarrow.parquet as pq
+from datetime import datetime
 
+def harmoniser_colonnes(df, colonne_equivalences):
+    df = df.rename(columns=colonne_equivalences)
+    return df
+ 
+def convertir_timestamp_en_date(df, colonne_timestamp):
+    df['date'] = pd.to_datetime(df[colonne_timestamp], unit='s').dt.date
+    df['time'] = pd.to_datetime(df[colonne_timestamp], unit='s').dt.time 
+    return df
 
 def trier_parquet():
-    important_colonnes = ['apply_time_rl', 'fact_time','gfs_2m_dewpoint','gfs_total_clouds_cover_low', 'gfs_wind_speed','gfs_u_wind','gfs_v_wind','fact_latitude','fact_longitude']
+    important_colonnes = ['apply_time_rl','gfs_2m_dewpoint','gfs_total_clouds_cover_low', 'gfs_wind_speed','gfs_u_wind','gfs_v_wind','fact_latitude','fact_longitude']
     weather = pd.read_parquet('Ressources/weather.parquet',columns=important_colonnes)
     weather.to_parquet('Ressources_filtrer/weather_filtered.parquet')
     weather_filtered = pd.read_parquet('Ressources_filtrer/weather_filtered.parquet')
     return weather_filtered
 
 #print(trier_parquet())
+
+def transformer_parquet():
+    df = pd.read_parquet('Ressources_filtrer/weather_filtered.parquet')
+    df.rename(columns={'fact_latitude': 'lat', 'fact_longitude': 'lng', 'apply_time_rl':'date'}, inplace=True)
+    df.to_parquet('Ressources_filtrer/weather_filtered.parquet')
+    df['date'] = pd.to_datetime(df['date'], unit='s')
+    df['time'] = df['date'].dt.strftime('%H:%M:%S')
+    df['date'] = df['date'].dt.strftime('%Y-%m-%d')
+    df.to_parquet('Ressources_filtrer/weather_filtered.parquet')
+
+#print(transformer_parquet())
 
 def trier_constructor_results():
     csv_colonnes = ['constructorResultsId','raceId','constructorId','points']
@@ -123,4 +143,4 @@ def trier_status():
     filtered = pd.read_csv('Ressources_filtrer/status_filtered.csv')
     return filtered
 
-print(trier_status())
+#print(trier_status())
