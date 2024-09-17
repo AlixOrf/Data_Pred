@@ -23,6 +23,17 @@ def transformer_parquet():
 
 #print(transformer_parquet())
 
+def date_parquet():
+    races_df = pd.read_csv("Ressources_filtrer/races_filtered.csv")
+    weather_df = pd.read_parquet("Ressources_filtrer/weather_filtered.parquet")
+    races_dates = races_df['date'].unique()
+    filtered_weather_df = weather_df[weather_df['date'].isin(races_dates)]
+    filtered_weather_df.to_parquet("Ressources_filtrer/weather_filtered.parquet")
+
+#print(date_parquet())
+
+#print(pd.read_parquet("Ressources_filtrer/weather_filtered.parquet"))
+
 def trier_constructor_results():
     csv_colonnes = ['constructorResultsId','raceId','constructorId','points']
     constructor_r_csv = pd.read_csv('Ressources/constructor_results.csv', usecols=csv_colonnes)
