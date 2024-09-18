@@ -8,6 +8,12 @@ constructors_df = pd.read_csv('Ressources_filtrer/constructors_filtered.csv')
 circuits_df = pd.read_csv('Ressources_filtrer/circuits_filtered.csv')
 results_df = pd.read_csv('Ressources_filtrer/results_filtered.csv')
 
+# Convertir la colonne 'dob' (date de naissance) en format datetime
+drivers_df['dob'] = pd.to_datetime(drivers_df['dob'], errors='coerce')
+
+# Filtrer les pilotes nés après 1er janvier 1960
+drivers_filtered_df = drivers_df[drivers_df['dob'] >= '1960-01-01']
+
 # Fonction pour simuler le temps au tour en fonction de la météo et des performances
 def simulate_lap_time(driver_performance, car_performance, weather_conditions):
     base_time = 90  # Base time for a lap in seconds
