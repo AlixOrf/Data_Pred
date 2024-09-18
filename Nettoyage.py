@@ -102,42 +102,28 @@ def trier_weather():
 
 #print(trier_weather())
 
-def date_weather():
-    races_df = pd.read_csv("Ressources_filtrer/races_filtered.csv")
-    weather_df = pd.read_parquet("Ressources_filtrer/weather_filtered.parquet")
-    races_df['date'] = pd.to_datetime(races_df['date'])
-    races_dates = races_df['date'].unique()
-    filtered_weather_df = weather_df[weather_df['date'].isin(races_dates)]
-    filtered_weather_df.to_parquet("Ressources_filtrer/weather_filtered.parquet")
+def powerBI():
+    print("Chargement des fichiers...")
+    df_weather = pd.read_parquet('Ressources_filtrer/weather_filtered.parquet') 
+    df_circuits = pd.read_csv('Ressources_filtrer/circuits_filtered.csv')    
+    df_races = pd.read_csv('Ressources_filtrer/races_filtered.csv')          
+    print("Fichiers chargés avec succès.")
+    df_weather['date'] = pd.to_datetime(df_weather['date'])  
+    df_races['date'] = pd.to_datetime(df_races['date'])
+    df_races_circuits = pd.merge(df_races, df_circuits, how='left', on='circuitId')
+    print("Jointure effectuée entre les courses et les circuits.")
+    print(df_races_circuits[['date', 'location']].head())
+    df_filtered_weather = pd.merge(df_weather, df_races_circuits[['date', 'location']],
+    how='inner', left_on=['date', 'city_name'], right_on=['date', 'location'])
+    print(f"Nombre d'enregistrements météo après filtrage: {len(df_filtered_weather)}")
+    df_filtered_weather = df_filtered_weather.drop(columns=['location'])
+    print("Sauvegarde des données filtrées dans un fichier CSV...")
+    df_filtered_weather.to_csv('Ressources_filtrer/weather_f1_filtered_by_city_and_date.csv', index=False, na_rep='/N')
+    print("Données sauvegardées dans 'weather_f1_filtered_by_city_and_date.csv'.")
+    print(df_filtered_weather.head())
 
-#date_weather()
-
-def lieu_weather():
-    circuits_df = pd.read_csv("Ressources_filtrer/circuits_filtered.csv")
-    weather_df = pd.read_parquet("Ressources_filtrer/weather_filtered.parquet")
-    circuits_df['location'] = circuits_df['location'].astype(str)
-    circuit_lieu = circuits_df['location'].unique()
-    filtered_weather_df = weather_df[weather_df['city_name'].isin(circuit_lieu)]
-    filtered_weather_df.to_parquet("Ressources_filtrer/weather_filtered.parquet")
-
-#lieu_weather()
-
-def supprimer_lignes_avant_1960():
-    weather_df = pd.read_parquet("Ressources_filtrer/weather_filtered.parquet")
-    weather_df['date'] = pd.to_datetime(weather_df['date'])
-    date_limite = pd.Timestamp("1960-01-01")
-    weather_df = weather_df[weather_df['date'] >= date_limite]
-    weather_df.to_parquet("Ressources_filtrer/weather_filtered.parquet")
-
-#supprimer_lignes_avant_1960()
-
-def transformation_csv():
-    df = pd.read_parquet('Ressources_filtrer/weather_filtered.parquet')
-    df.to_csv('Ressources_filtrer/weather_filtered.csv', index=False, na_rep='/N')
-
-#transformation_csv()
-
-print(pd.read_parquet("Ressources_filtrer/weather_filtered.parquet"))
+powerBI()
+## ----------------------------------------------------------------------------------------------------
 
 def trier_constructor_results():
     csv_colonnes = ['constructorResultsId','raceId','constructorId','points']
