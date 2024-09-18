@@ -94,7 +94,7 @@ def date_lieu_parquet():
 ## ----------------------------------------------------------------------------------------------------
 
 def trier_weather():
-    important_colonnes = ['city_name','date','avg_wind_speed_kmh', 'peak_wind_gust_kmh','sunshine_total_min']
+    important_colonnes = ['city_name','date','avg_wind_speed_kmh', 'peak_wind_gust_kmh','sunshine_total_min', 'avg_temp_c','min_temp_c','max_temp_c','precipitation_mm']
     weather = pd.read_parquet('Ressources/daily_weather.parquet',columns=important_colonnes)
     weather.to_parquet('Ressources_filtrer/weather_filtered.parquet')
     weather_filtered = pd.read_parquet('Ressources_filtrer/weather_filtered.parquet')
@@ -131,6 +131,11 @@ def supprimer_lignes_avant_1960():
 
 #supprimer_lignes_avant_1960()
 
+def transformation_csv():
+    df = pd.read_parquet('Ressources_filtrer/weather_filtered.parquet')
+    df.to_csv('Ressources_filtrer/weather_filtered.csv', index=False, na_rep='/N')
+
+#transformation_csv()
 
 print(pd.read_parquet("Ressources_filtrer/weather_filtered.parquet"))
 
