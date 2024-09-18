@@ -115,12 +115,22 @@ def date_weather():
 def lieu_weather():
     circuits_df = pd.read_csv("Ressources_filtrer/circuits_filtered.csv")
     weather_df = pd.read_parquet("Ressources_filtrer/weather_filtered.parquet")
-    races_df['date'] = pd.to_datetime(races_df['date'])
-    races_dates = races_df['date'].unique()
-    filtered_weather_df = weather_df[weather_df['date'].isin(races_dates)]
+    circuits_df['location'] = circuits_df['location'].astype(str)
+    circuit_lieu = circuits_df['location'].unique()
+    filtered_weather_df = weather_df[weather_df['city_name'].isin(circuit_lieu)]
     filtered_weather_df.to_parquet("Ressources_filtrer/weather_filtered.parquet")
 
 #lieu_weather()
+
+def supprimer_lignes_avant_1960():
+    weather_df = pd.read_parquet("Ressources_filtrer/weather_filtered.parquet")
+    weather_df['date'] = pd.to_datetime(weather_df['date'])
+    date_limite = pd.Timestamp("1960-01-01")
+    weather_df = weather_df[weather_df['date'] >= date_limite]
+    weather_df.to_parquet("Ressources_filtrer/weather_filtered.parquet")
+
+#supprimer_lignes_avant_1960()
+
 
 print(pd.read_parquet("Ressources_filtrer/weather_filtered.parquet"))
 
