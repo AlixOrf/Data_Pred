@@ -5,16 +5,17 @@ from datetime import datetime, timedelta
 import numpy as np
 from geopy.distance import geodesic 
 
-def trier_parquet():
+## ----------------------------------------------------------------------------------------------------
+def trier_parquetw():
     important_colonnes = ['apply_time_rl','gfs_2m_dewpoint','gfs_total_clouds_cover_low', 'gfs_wind_speed','gfs_u_wind','gfs_v_wind','fact_latitude','fact_longitude']
     weather = pd.read_parquet('Ressources/weather.parquet',columns=important_colonnes)
     weather.to_parquet('Ressources_filtrer/weather_filtered.parquet')
     weather_filtered = pd.read_parquet('Ressources_filtrer/weather_filtered.parquet')
     return weather_filtered
 
-#print(trier_parquet())
+#print(trier_parquetw())
 
-def transformer_parquet():
+def transformer_parquetw():
     df = pd.read_parquet('Ressources_filtrer/weather_filtered.parquet')
     df.rename(columns={'fact_latitude': 'lat', 'fact_longitude': 'lng', 'apply_time_rl':'date'}, inplace=True)
     df.to_parquet('Ressources_filtrer/weather_filtered.parquet')
@@ -23,16 +24,16 @@ def transformer_parquet():
     df['date'] = df['date'].dt.strftime('%Y-%m-%d')
     df.to_parquet('Ressources_filtrer/weather_filtered.parquet')
 
-#print(transformer_parquet())
+#print(transformer_parquetw())
 
-def date_parquet():
+def date_parquetw():
     races_df = pd.read_csv("Ressources_filtrer/races_filtered.csv")
     weather_df = pd.read_parquet("Ressources_filtrer/weather_filtered.parquet")
     races_dates = races_df['date'].unique()
     filtered_weather_df = weather_df[weather_df['date'].isin(races_dates)]
     filtered_weather_df.to_parquet("Ressources_filtrer/weather_filtered.parquet")
 
-#print(date_parquet())  
+#print(date_parquetw())  
 
 def filter_by_time():
     races_df = pd.read_csv("Ressources_filtrer/races_filtered.csv")
@@ -90,7 +91,38 @@ def date_lieu_parquet():
     final_filtered_weather_df.to_parquet("Ressources_filtrer/weather_filtered.parquet")
 
 #date_lieu_parquet()
+## ----------------------------------------------------------------------------------------------------
 
+def trier_weather():
+    important_colonnes = ['city_name','date','avg_wind_speed_kmh', 'peak_wind_gust_kmh','sunshine_total_min']
+    weather = pd.read_parquet('Ressources/daily_weather.parquet',columns=important_colonnes)
+    weather.to_parquet('Ressources_filtrer/weather_filtered.parquet')
+    weather_filtered = pd.read_parquet('Ressources_filtrer/weather_filtered.parquet')
+    return weather_filtered
+
+#print(trier_weather())
+
+def date_weather():
+    races_df = pd.read_csv("Ressources_filtrer/races_filtered.csv")
+    weather_df = pd.read_parquet("Ressources_filtrer/weather_filtered.parquet")
+    races_df['date'] = pd.to_datetime(races_df['date'])
+    races_dates = races_df['date'].unique()
+    filtered_weather_df = weather_df[weather_df['date'].isin(races_dates)]
+    filtered_weather_df.to_parquet("Ressources_filtrer/weather_filtered.parquet")
+
+#date_weather()
+
+def lieu_weather():
+    circuits_df = pd.read_csv("Ressources_filtrer/circuits_filtered.csv")
+    weather_df = pd.read_parquet("Ressources_filtrer/weather_filtered.parquet")
+    races_df['date'] = pd.to_datetime(races_df['date'])
+    races_dates = races_df['date'].unique()
+    filtered_weather_df = weather_df[weather_df['date'].isin(races_dates)]
+    filtered_weather_df.to_parquet("Ressources_filtrer/weather_filtered.parquet")
+
+#lieu_weather()
+
+print(pd.read_parquet("Ressources_filtrer/weather_filtered.parquet"))
 
 def trier_constructor_results():
     csv_colonnes = ['constructorResultsId','raceId','constructorId','points']
