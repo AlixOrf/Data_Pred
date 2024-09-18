@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulateur F1</title>
+</head>
+<body>
+    <h1>Simulateur F1 - Entrée des données</h1>
+    <form action="/simulate" method="POST">
+        <label for="circuit">Nom du circuit :</label>
+        <input type="text" name="circuit" required><br>
+
+        <label for="rain">Est-ce qu'il pleut ? (oui/non) :</label>
+        <input type="text" name="rain" required><br>
+
+        <label for="wind">Y a-t-il du vent ? (oui/non) :</label>
+        <input type="text" name="wind" required><br>
+
+        <label for="sunshine">Quantité d'ensoleillement (0-100) :</label>
+        <input type="number" name="sunshine" required><br><br>
+
+        <h3>Entrez les noms des 20 pilotes :</h3>
+        {% for i in range(1, 21) %}
+            <label for="driver{{i}}">Pilote {{i}} (Prénom Nom) :</label>
+            <input type="text" name="driver{{i}}" required><br>
+        {% endfor %}
+
+        <button type="submit">Simuler</button>
+    </form>
+</body>
+</html>
