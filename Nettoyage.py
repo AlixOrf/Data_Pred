@@ -120,7 +120,7 @@ def powerBI():
     print("Jointure effectuée entre les courses et les circuits.")
     
     # Jointure des données météo avec les courses et circuits
-    df_filtered_weather = pd.merge(df_weather, df_races_circuits[['date', 'location']],how='inner', left_on=['date', 'city_name'], right_on=['date', 'location'])
+    df_filtered_weather = pd.merge(df_weather, df_races_circuits[['date', 'location']], how='inner', left_on=['date', 'city_name'], right_on=['date', 'location'])
     
     print(f"Nombre d'enregistrements météo après filtrage: {len(df_filtered_weather)}")
     
@@ -139,6 +139,17 @@ def powerBI():
     # Ajout des informations sur les pays dans l'ensemble de données complet
     df_weather_with_countries = pd.merge(df_filtered_weather, df_cities[['city_name', 'country']], on='city_name', how='left')
     
+    # Correction des pays pour les villes ambiguës (ex. Barcelone, Valence)
+    city_country_mapping = {
+        'Barcelona': 'Spain',
+        'Valencia': 'Spain'
+    }
+    
+    df_weather_with_countries = df_weather_with_countries[
+        ~((df_weather_with_countries['city_name'].isin(city_country_mapping.keys())) &
+          (df_weather_with_countries['country'] != df_weather_with_countries['city_name'].map(city_country_mapping)))
+    ]
+    
     # Conversion des colonnes météo en numérique
     df_weather_with_countries[weather_columns] = df_weather_with_countries[weather_columns].apply(pd.to_numeric, errors='coerce')
     
@@ -155,8 +166,9 @@ def powerBI():
     missing_weather_with_averages = missing_weather_with_averages.drop(columns=[f"{col}_country_avg" for col in weather_columns])
     
     # Fusion des données corrigées avec l'ensemble original
-    df_filled_weather = pd.concat([df_filtered_weather[~df_filtered_weather.index.isin(missing_weather_with_averages.index)],missing_weather_with_averages])
-    
+    df_filled_weather = pd.concat([df_filtered_weather[~df_filtered_weather.index.isin(missing_weather_with_averages.index)], missing_weather_with_averages])
+    df_filled_weather = df_filled_weather.drop(columns=['location', 'country'])
+
     # Sauvegarde dans un fichier CSV
     df_filled_weather.to_csv('Ressources_filtrer/weather_f1_filtered_by_city_and_date_filled.csv', index=False, na_rep='/N')
     
