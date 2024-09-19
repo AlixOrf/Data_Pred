@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Résultats de la simulation</title>
+</head>
+<body>
+    <h1>Classement des pilotes</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Position</th>
+                <th>Prénom</th>
+                <th>Nom</th>
+                <th>Constructeur</th>
+                <th>Temps (secondes)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for driver in drivers %}
+            <tr>
+                <td>{{ driver['position'] }}</td>
+                <td>{{ driver['forename'] }}</td>
+                <td>{{ driver['surname'] }}</td>
+                <td>{{ driver['name'] }}</td>
+                <td>{{ driver['lap_time'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
