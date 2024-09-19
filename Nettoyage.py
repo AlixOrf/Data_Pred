@@ -99,83 +99,56 @@ def trier_weather():
     weather_filtered = pd.read_parquet('Ressources_filtrer/weather_filtered.parquet')
     return weather_filtered
 
-#print(trier_weather())
+print(trier_weather())
 
-def powerBI():
-    print("Chargement des fichiers...")
-    df_weather = pd.read_parquet('Ressources_filtrer/weather_filtered.parquet') 
-    df_circuits = pd.read_csv('Ressources_filtrer/circuits_filtered.csv')
-    df_races = pd.read_csv('Ressources_filtrer/races_filtered.csv')
-    df_cities = pd.read_csv('Ressources/cities.csv')
-    df_countries = pd.read_csv('Ressources/countries.csv')
-    
-    print("Fichiers chargés avec succès.")
-    
-    # Conversion des dates
-    df_weather['date'] = pd.to_datetime(df_weather['date'])
-    df_races['date'] = pd.to_datetime(df_races['date'])
-    
-    # Jointure des courses et des circuits
-    df_races_circuits = pd.merge(df_races, df_circuits, how='left', on='circuitId')
-    print("Jointure effectuée entre les courses et les circuits.")
-    
-    # Jointure des données météo avec les courses et circuits
-    df_filtered_weather = pd.merge(df_weather, df_races_circuits[['date', 'location']], how='inner', left_on=['date', 'city_name'], right_on=['date', 'location'])
-    
-    print(f"Nombre d'enregistrements météo après filtrage: {len(df_filtered_weather)}")
-    
-    # Remplacement des valeurs '/N' par NaN
-    df_filtered_weather.replace('/N', pd.NA, inplace=True)
-    
-    # Colonnes météo
-    weather_columns = ['avg_wind_speed_kmh', 'peak_wind_gust_kmh', 'sunshine_total_min', 'avg_temp_c', 'min_temp_c', 'max_temp_c', 'precipitation_mm']
-    
-    # Identification des données manquantes
-    missing_weather_data = df_filtered_weather[df_filtered_weather[weather_columns].isna().any(axis=1)]
-    
-    # Ajout des informations sur les pays via les villes
-    missing_weather_with_countries = pd.merge(missing_weather_data, df_cities[['city_name', 'country']], on='city_name', how='left')
-    
-    # Ajout des informations sur les pays dans l'ensemble de données complet
-    df_weather_with_countries = pd.merge(df_filtered_weather, df_cities[['city_name', 'country']], on='city_name', how='left')
-    
-    # Correction des pays pour les villes ambiguës (ex. Barcelone, Valence)
-    city_country_mapping = {
-        'Barcelona': 'Spain',
-        'Valencia': 'Spain'
-    }
-    
-    df_weather_with_countries = df_weather_with_countries[
-        ~((df_weather_with_countries['city_name'].isin(city_country_mapping.keys())) &
-          (df_weather_with_countries['country'] != df_weather_with_countries['city_name'].map(city_country_mapping)))
-    ]
-    
-    # Conversion des colonnes météo en numérique
-    df_weather_with_countries[weather_columns] = df_weather_with_countries[weather_columns].apply(pd.to_numeric, errors='coerce')
-    
-    # Calcul des moyennes par pays
-    country_weather_means = df_weather_with_countries.groupby('country')[weather_columns].mean().reset_index()
-    
-    # Remplissage des données manquantes avec les moyennes par pays
-    missing_weather_with_averages = pd.merge(missing_weather_with_countries, country_weather_means, on='country', suffixes=('', '_country_avg'))
-    
-    for column in weather_columns:
-        missing_weather_with_averages[column].fillna(missing_weather_with_averages[f"{column}_country_avg"], inplace=True)
-    
-    # Suppression des colonnes de moyennes temporaires
-    missing_weather_with_averages = missing_weather_with_averages.drop(columns=[f"{col}_country_avg" for col in weather_columns])
-    
-    # Fusion des données corrigées avec l'ensemble original
-    df_filled_weather = pd.concat([df_filtered_weather[~df_filtered_weather.index.isin(missing_weather_with_averages.index)], missing_weather_with_averages])
-    df_filled_weather = df_filled_weather.drop(columns=['location', 'country'])
-
-    # Sauvegarde dans un fichier CSV
-    df_filled_weather.to_csv('Ressources_filtrer/weather_f1_filtered_by_city_and_date_filled.csv', index=False, na_rep='/N')
-    
-    print("Données sauvegardées dans 'weather_f1_filtered_by_city_and_date_filled.csv'.")
-    print(df_filled_weather.head())
-
-powerBI()
+df_races = pd.read_csv('Ressources_filtrer/races_filtered.csv')  
+df_circuits = pd.read_csv('Ressources_filtrer/circuits_filtered.csv')      
+df_weather = pd.read_parquet('Ressources_filtrer/weather_filtered.parquet')     
+df_cities = pd.read_csv('Ressources/cities.csv')             
+ 
+df_races['date'] = pd.to_datetime(df_races['date']).dt.date
+df_weather['date'] = pd.to_datetime(df_weather['date']).dt.date
+ 
+df_circuits['country'] = df_circuits['country'].replace({
+    'USA': 'United States of America',
+    'UK': 'United Kingdom',
+    'UAE': 'United Arab Emirates',
+    'Korea':'South Korea'
+})
+df_races_circuits = pd.merge(df_races, df_circuits, how='left', on='circuitId')
+filtered_weather_data = []
+for _, race in df_races_circuits.iterrows():
+    race_city = race['location']
+    race_country = race['country']  
+    race_date = race['date']
+    meteo_course = df_weather[(df_weather['city_name'] == race_city) & (df_weather['date'] == race_date)]
+    if not meteo_course.empty:
+        filtered_weather_data.append(meteo_course)
+    else:
+        print(f"Données manquantes pour {race_city} à la date {race_date}. Calcul de la moyenne des villes du pays.")
+        villes_du_pays = df_cities[df_cities['country'] == race_country]
+        meteo_villes_pays = df_weather[(df_weather['city_name'].isin(villes_du_pays['city_name'])) & (df_weather['date'] == race_date)]
+        if not meteo_villes_pays.empty:
+            meteo_moyenne = meteo_villes_pays[['avg_temp_c', 'min_temp_c', 'max_temp_c', 'precipitation_mm', 'avg_wind_speed_kmh', 'peak_wind_gust_kmh', 'sunshine_total_min']].mean()
+            moyenne_data = pd.DataFrame([{
+                'city_name': race_city,
+                'date': race_date, 
+                'avg_temp_c': meteo_moyenne['avg_temp_c'],
+                'min_temp_c': meteo_moyenne['min_temp_c'],
+                'max_temp_c': meteo_moyenne['max_temp_c'],
+                'precipitation_mm': meteo_moyenne['precipitation_mm'],
+                'avg_wind_speed_kmh': meteo_moyenne['avg_wind_speed_kmh'],
+                'peak_wind_gust_kmh': meteo_moyenne['peak_wind_gust_kmh'],
+                'sunshine_total_min': meteo_moyenne['sunshine_total_min']
+            }])
+           
+            filtered_weather_data.append(moyenne_data)
+        else:
+            print(f"Aucune donnée météo disponible pour les villes du pays {race_country} à la date {race_date}")
+#filtered_weather_df = pd.concat(filtered_weather_data, ignore_index=True)
+#filtered_weather_df.to_csv('Ressources_filtrer/weather_filtered_f1.csv', index=False)
+ 
+#print("Export terminé : filtered_weather.csv")
 
 ## ----------------------------------------------------------------------------------------------------
 
@@ -186,7 +159,7 @@ def trier_constructor_results():
     constructor_r_filtered = pd.read_csv('Ressources_filtrer/constructor_r_filtered.csv')
     return constructor_r_filtered
 
-print(trier_constructor_results())
+#print(trier_constructor_results())
 
 def trier_circuits():
     csv_colonnes = ['circuitId','circuitRef','name','location','country','lat','lng','alt']
