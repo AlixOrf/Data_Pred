@@ -1,9 +1,6 @@
 pandas 
 pyarrow
-<<<<<<< Updated upstream
 scikit-learn
 flask
-=======
 matplotlib
 seaborn
->>>>>>> Stashed changes
