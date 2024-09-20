@@ -1,0 +1,117 @@
+/* Style général */
+body {
+    background-image: url('/static/Neon-F1-Wallpaper.jpg'); /* Ajustez le chemin selon le bon emplacement */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: #e0e0e0;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Titre principal avec effet arc-en-ciel */
+h1 {
+    font-family: 'Racing Sans One', sans-serif;
+    background: linear-gradient(90deg, #ff0000, #ffa500, #ffff00, #008000, #0000ff, #4b0082, #ee82ee);
+    -webkit-background-clip: text;
+    color: transparent;
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+/* Conteneur semi-transparent pour le formulaire */
+.container {
+    background-color: rgba(30, 30, 30, 0.8); /* Fond semi-transparent */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 800px;
+}
+
+/* Formulaires et Inputs */
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #fc0647;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="range"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #fc0647;
+    border-radius: 8px;
+    background-color: #2b2b2b;
+    color: #e0e0e0;
+    transition: border-color 0.3s ease;
+}
+
+input:focus {
+    border-color: #e0053f;
+}
+
+/* Bouton */
+button {
+    background-color: #fc0647;
+    color: #fff;
+    border: none;
+    padding: 15px 30px;
+    cursor: pointer;
+    border-radius: 5px;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    margin: 20px auto;
+}
+
+/* Conteneur des résultats avec fond semi-transparent */
+.results-container {
+    background-color: rgba(30, 30, 30, 0.8); /* Fond noir semi-transparent */
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 900px;
+    margin-bottom: 30px;
+}
+
+button:hover {
+    background-color: #e0053f;
+}
+
+/* Tableau des résultats */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+}
+
+th {
+    background-color: #2a2a2a;
+    color: #fc0647;
+    text-transform: uppercase;
+}
+
+tr:hover {
+    background-color: #333;
+}

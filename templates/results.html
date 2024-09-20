@@ -3,30 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>Résultats de la simulation</title>
+    <!-- Lien vers le fichier CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap" rel="stylesheet">
 </head>
 <body>
     <h1>Classement des pilotes</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Position</th>
-                <th>Prénom</th>
-                <th>Nom</th>
-                <th>Constructeur</th>
-                <th>Temps</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for driver in drivers %}
-            <tr>
-                <td>{{ driver['position'] }}</td>
-                <td>{{ driver['forename'] }}</td>
-                <td>{{ driver['surname'] }}</td>
-                <td>{{ driver['name'] }}</td>
-                <td>{{ driver['lap_time'] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    
+    <!-- Conteneur pour le tableau avec fond semi-transparent -->
+    <div class="results-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Position</th>
+                    <th>Prénom</th>
+                    <th>Nom</th>
+                    <th>Constructeur</th>
+                    <th>Temps (secondes)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for driver in drivers %}
+                <tr>
+                    <td>{{ driver['position'] }}</td>
+                    <td>{{ driver['forename'] }}</td>
+                    <td>{{ driver['surname'] }}</td>
+                    <td>{{ driver['name'] }}</td>
+                    <td>{{ driver['lap_time'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>

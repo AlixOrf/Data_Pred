@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 import pandas as pd
 import numpy as np
 
@@ -26,11 +26,11 @@ def simulate_lap_time(driver_performance, car_performance, weather_conditions, c
     
     # Ajustement selon les conditions météo
     if weather_conditions['rain']:
-        time *= 1.15  # Temps plus long en cas de pluie
+        time *= 1.96  # Temps plus long en cas de pluie
     if weather_conditions['wind']:
-        time *= 1.05  # Légère augmentation avec le vent
+        time *= 1.02  # Légère augmentation avec le vent
     if weather_conditions['sunshine'] < 50:  # S'il y a moins de soleil
-        time *= 1.02
+        time *= 1.00
 
     return time
 
